@@ -1,0 +1,51 @@
+<html>
+    <head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link href="css/bootstrap.min.css" rel="stylesheet" />
+		<link href="css/bootstrap-responsive.css" rel="stylesheet" />
+		<link href="css/joint.min.css" rel="stylesheet" />
+        <link rel="stylesheet" type="text/css" href="css/jquery.svg.css"> 
+        <link rel="stylesheet" type="text/css" href="css/svg.css"> 
+        <style type="text/css">
+            #per {
+   border: 1px solid lightgray;
+   display: inline-block;
+   overflow: hidden;
+}
+        </style>
+    </head>
+
+    <body>
+        <h2>D-seperation calculator</h2>
+        <input id="varname"  class="form-control"> </input>
+        <button id="btn-add-var" class="btn btn-default" onclick="addVar()">add</button>
+        <button id="btn-remove-var" class="btn btn-default" onclick="rmVar()">remove</button>
+       <br>
+        <input id="childname" class="form-control"> </input>
+        is a child of 
+        <input id="parentname" class="form-control"> </input>
+       <button id="btn-add-cond" class="btn btn-default" onclick="addRelationship()">add</button>
+       <button id="btn-remove-cond" class="btn btn-default"  onclick="rmRelationship()">remove</button>
+       <br>
+        <input id="qstart" class="form-control"> </input>
+        is d-seperated from 
+        <input id="qend" class="form-control"> </input>
+       <button id="query" class="btn btn-default" onclick="queryDSeperation()" >query</button>
+        ?
+        <div id="querymessage"></div>
+       <br>
+       To add a varible to the evidence pool, click on it.
+        <div id="paper" class="paper" focusable="true"></div>
+    </body>
+        <!--jquery-->
+        <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.js "></script>
+        <script type="text/javascript" src="./js/joint.min.js"></script>
+        <script type="text/javascript" src="./js/joint.layout.DirectedGraph.min.js"></script>
+        <script type="text/javascript" src="js/jquery.svg.js"></script>
+        <script type="text/javascript" src="./js/jquery.svg.input.js"></script>
+        <script type="text/javascript" src="./js/bootstrap.js"></script>
+        <script type="text/javascript" src="./dsep.js"></script>
+</html>
+
