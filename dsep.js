@@ -36,9 +36,6 @@ var paper = new joint.dia.Paper({
     model: graph
 });
 
-var adjacencyList = {
-    "a" : ["c", "d"], "b": ["d"], "c": [ "f", "g" ], "d" : ["g", "h"], "e" : ["h"], "f" : [], "g" : [] , "h" : [] 
-    };
 var varibles = {
     "a": {children : ["d","c"], parents : [], evidence : false, blocks : false},
     "b": {children : ["d"], parents : [], evidence : false, blocks : false},
@@ -120,7 +117,7 @@ function searchForAllPaths(start, end, currentPath, visited) {
             var ret = searchForAllPaths(links[i], end, newCurrentPath, newVisited);
             for (var j = 0; j < ret.length; j++) {
                 paths.push(ret[j]);
-                }
+            }
         }
     }
     return paths;
@@ -141,161 +138,3 @@ function getPathsFrom(state) {
 function getPathsTo(state) {
     return varibles[state].parents;
 }
-
-function buildGraphFromAdjacencyList(adjacencyList) {
-    var elements = [];
-    var links = [];
-    
-    _.each(adjacencyList, function(edges, parentElementLabel) {
-        elements.push(makeElement(parentElementLabel));
-
-        _.each(edges, function(childElementLabel) {
-            links.push(makeLink(parentElementLabel, childElementLabel));
-        });
-    });
-
-    // Links must be added after all the elements. This is because when the links
-    // are added to the graph, link source/target
-    // elements must be in the graph already.
-    return elements.concat(links);
-}
-
-function makeLink(parentElementLabel, childElementLabel) {
-
-    return new joint.dia.Link({
-        source: { id: parentElementLabel },
-        target: { id: childElementLabel },
-        attrs: { '.marker-target': { d: 'M 4 0 L 0 2 L 4 4 z' } },
-        smooth: true
-    });
-}
-
-function makeElement(label, evidence) {
-
-    var maxLineLength = _.max(label.split('\n'), function(l) { return l.length; }).length;
-
-    if (varibles[label].blocks) 
-        var fillColor = 'red';
-    else if (varibles[label].evidence) 
-        var fillColor = 'green';
-    else 
-        var fillColor = 'white';
-    // Compute width/height of the rectangle based on the number 
-    // of lines in the label and the letter size. 0.6 * letterSize is
-    // an approximation of the monospace font letter width.
-    var letterSize = 8;
-    var width = 2 * (letterSize * (0.6 * maxLineLength + 1));
-    var height = 2 * ((label.split('\n').length + 1) * letterSize);
-
-    var variable =  new joint.shapes.basic.Rect({
-        name : label,
-        id: label,
-        onclick : function () {alert("hello");},
-        size: { width: width, height: height },
-        attrs: {
-            text: { text: label, 'font-size': letterSize, 'font-family': 'monospace' },
-            rect: {
-                fill : fillColor, 
-                width: width, height: height,
-                rx: 5, ry: 5,
-                stroke: '#555'
-            }
-        }
-    });
-    return variable;
-}
-
-function addVar(opts) {
-    if(opts != undefined) {
-    adjacencyList[opts.name] = []
-    varibles[opts.name] = {"blocks":false, "evidence" : false, "parents" : [], "children":[]};
-    }
-    else {
-    adjacencyList[$("#varname").val()] = [];
-    varibles[$("#varname").val()] = {"evidence" : false, "parents" : [], "children":[]};
-    }
-    drawGraph();
-}
-
-function rmVar() {
-    delete adjacencyList[$("#varname").val()];
-    delete varibles[$("#varname").val()];
-    drawGraph();
-}
-
-function mvVar(oldName, newName) {
-    adjacencyList[newName] = adjacencyList[oldName];
-    delete adjacencyList[oldName];
-    varibles[newName] = varibles[oldName];
-    delete varibles[$("#varname").val()];
-    drawGraph();
-}
-
-function addRelationship() {
-    adjacencyList[$("#parentname").val()].push($("#childname").val());
-    varibles[$("#parentname").val()].children.push($("#childname").val());
-    varibles[$("#childname").val()].parents.push($("#parentname").val());
-    drawGraph();
-}
-
-function rmRelationship() {
-    var childIndex = adjacencyList[$("#parentname").val()].indexOf($("#childname").val());
-    adjacencyList[$("#parentname").val()].splice(childIndex,1);
-    childIndex = varibles[$("#parentname").val()].children.indexOf($("#childname").val());
-    varibles[$("#childname").val()].parents.splice(childIndex, 1);
-    var parentIndex = varibles[$("#childname").val()].parents.indexOf($("#parentname").val());
-    varibles[$("#childname").val()].parents.splice(parentIndex, 1);
-    drawGraph();
-}
-
-function toggleEvidence(name) {
-    varibles[name].blocks = false;
-    if (varibles[name].evidence) 
-        varibles[name].evidence = false;
-    else 
-        varibles[name].evidence = true;
-    drawGraph();
-}
-
-function queryDSeperation() {
-    for (v in varibles) {
-        v.blocks = false;
-    }
-    drawGraph();
-    var start = $("#qstart").val();
-    var end = $("#qend").val();
-    if (isdseperated(start, end))
-        $("#querymessage").html(start + " and " + end + " are d-seperated.");
-    else
-        $("#querymessage").html(start + " and " + end + " are d-connected.");
-    drawGraph();
-}
-
-function drawGraph() {
-    var cells = buildGraphFromAdjacencyList(adjacencyList);
-    graph.resetCells(cells);
-    joint.layout.DirectedGraph.layout(graph, { setLinkVertices: false });
-}
-
-function handleClickEvent() {
-
-}
-
-drawGraph();
-//event handlers
-
-var isInAddMode  = false;
-paper.on('cell:pointerdown', 
-    function(cellView, evt, x, y) { 
-            toggleEvidence( cellView.model.id ); 
-            drawGraph();
-        }
-    );
-paper.on('blank:pointerdown', 
-    function(cellView, evt, x, y) { 
-            addVar("hello");            
-            isInAddMode = true;
-            drawGraph();
-        }
-    );
-drawGraph();
