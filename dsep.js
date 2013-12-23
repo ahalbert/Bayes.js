@@ -25,42 +25,32 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-var graph = new joint.dia.Graph;
-
-var paper = new joint.dia.Paper({
-
-    el: $('#paper'),
-    width: 800,
-    height: 600,
-    gridSize: 1,
-    model: graph
-});
-
-var varibles = {
-    "a": {children : ["d","c"], parents : [], evidence : false, blocks : false},
-    "b": {children : ["d"], parents : [], evidence : false, blocks : false},
-    "c": {children : ["f", "g"], parents : ["a"], evidence : false, blocks : false},
-    "d": {children : ["g", "h"], parents : ["b", "a"], evidence : false, blocks : false},
-    "e": {children : ["h"], parents : [], evidence : false, blocks : false},
-    "f": {children : [], parents : ["c"], evidence : false, blocks : false},
-    "g": {children : [], parents : ["c", "d"], evidence : false, blocks : false},
-    "h": {children : [], parents : ["d", "e"], evidence : false, blocks : false}
+var variables = {
+    "a": {children : ["d","c"], parents : [], observation : "none", blocks : false , CPT : []},
+    "b": {children : ["d"], parents : [], observation : "none", blocks : false, CPT : []},
+    "c": {children : ["f", "g"], parents : ["a"], observation : "none", blocks : false, CPT : []},
+    "d": {children : ["g", "h"], parents : ["b", "a"], observation : "none", blocks : false, CPT : []},
+    "e": {children : ["h"], parents : [], observation : "none", blocks : false, CPT : []},
+    "f": {children : [], parents : ["c"], observation : "none", blocks : false, CPT : []},
+    "g": {children : [], parents : ["c", "d"], observation : "none", blocks : false, CPT : []},
+    "h": {children : [], parents : ["d", "e"], observation : "none", blocks : false, CPT : []}
 };
 
 function isdseperated(start, target)   {
-    for (v in varibles) {
+    isSeperated = true;
+    for (v in variables) {
         v.blocks = false;
     }
     var paths = searchForAllPaths(start, target, [], []);
     for(var i = 0; i < paths.length; i++ ) {
         var blockednodes = isPathBlocked(paths[i]);
         if (blockednodes.length === 0)
-            return false;
+            isSeperated =  false;
         for (var j = 0; j < blockednodes.length; j++) {
-            varibles[blockednodes[j]].blocks = true;
+            variables[blockednodes[j]].blocks = true;
         }
     }
-    return true;
+    return isSeperated;
 }
 
 function getDescendents(state, descendents) {
@@ -73,10 +63,10 @@ function getDescendents(state, descendents) {
     return descendents;
 }
 
-function isDescendentInEvidence(state) {
+function isDescendentInobservation(state) {
     var descendents = getDescendents(state, []);
     for (var i = 0; i < descendents.length; i++) {
-        if (varibles[descendents[i]].evidence === true)
+        if (variables[descendents[i]].observation != "none")
             return true;
     }
     return false;
@@ -85,12 +75,12 @@ function isPathBlocked(path) {
     var blocks = [];
     for(var j = 1; j < path.length - 1; j++) {
         if ( isCollider(path[j-1], path[j], path[j+1])) {
-            if (!varibles[path[j]].evidence && !isDescendentInEvidence(path[j])) {
+            if (variables[path[j]].observation == "none" && !isDescendentInobservation(path[j])) {
                 blocks.push(path[j]);
             }
         }
         else {
-            if (varibles[path[j]].evidence) {
+            if (variables[path[j]].observation != "none") {
                 blocks.push(path[j]);
             }
         }
@@ -124,17 +114,17 @@ function searchForAllPaths(start, end, currentPath, visited) {
 }
 
 function isCollider(start,mid,target) {
-    if (varibles[mid].parents.indexOf(start) !== -1) {
-        if (varibles[mid].parents.indexOf(target) !== -1)
+    if (variables[mid].parents.indexOf(start) !== -1) {
+        if (variables[mid].parents.indexOf(target) !== -1)
             return true;
     }
     return false;
 }
 
 function getPathsFrom(state) {
-    return varibles[state].children;
+    return variables[state].children;
 }
 
 function getPathsTo(state) {
-    return varibles[state].parents;
+    return variables[state].parents;
 }

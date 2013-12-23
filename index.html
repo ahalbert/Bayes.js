@@ -9,31 +9,32 @@
         <link rel="stylesheet" type="text/css" href="css/svg.css"> 
         <style type="text/css">
             #per {
-   border: 1px solid lightgray;
-   display: inline-block;
-   overflow: hidden;
-}
+            border: 1px solid lightgray;
+            display: inline-block;
+            overflow: hidden;
+            }
         </style>
     </head>
 
     <body>
-        <h2>D-seperation calculator</h2>
-        <input id="varname"  class="form-control"> </input>
-        <button id="btn-add-var" class="btn btn-default" onclick="addVar()">add</button>
-        <button id="btn-remove-var" class="btn btn-default" onclick="rmVar()">remove</button>
+       <h2>Bayes Network Simulator</h2>
+       Variables:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="varname"  class="form-control"> </input>
+       <button id="btn-add-var" class="btn btn-default" onclick="addVar()">add</button>
+       <button id="btn-remove-var" class="btn btn-default" onclick="rmVar()">remove</button>
        <br>
-        <input id="childname" class="form-control"> </input>
-        is a child of 
-        <input id="parentname" class="form-control"> </input>
+       Relationships:&nbsp;<input id="childname" class="form-control"> </input>
+       is a child of 
+       <input id="parentname" class="form-control"> </input>
        <button id="btn-add-cond" class="btn btn-default" onclick="addRelationship()">add</button>
        <button id="btn-remove-cond" class="btn btn-default"  onclick="rmRelationship()">remove</button>
        <br>
-        <input id="qstart" class="form-control"> </input>
-        is d-seperated from 
-        <input id="qend" class="form-control"> </input>
+       Independence:<input id="qstart" class="form-control"> </input>
+       is d-seperated from 
+       <input id="qend" class="form-control"> </input>
        <button id="query" class="btn btn-default" onclick="queryDSeperation()" >query</button>
         ?
         <div id="querymessage"></div>
+        <div id="probtable"> </div>
        <br>
        To add a varible to the evidence pool, click on it.
         <div id="paper" class="paper"></div>

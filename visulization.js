@@ -24,13 +24,24 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+var graph = new joint.dia.Graph;
 
+var paper = new joint.dia.Paper({
 
-function buildGraphFromVaribleList(varibles) {
+    el: $('#paper'),
+    width: 500,
+    height: 400,
+    gridSize: 1,
+    model: graph
+});
+
+var selected;
+
+function buildGraphFromvariableList(variables) {
     var elements = [];
     var links = [];
     
-    _.each(varibles, function(opts, parentElementLabel) {
+    _.each(variables, function(opts, parentElementLabel) {
         elements.push(makeElement(parentElementLabel, opts));
 
         _.each(opts.children, function(childElementLabel) {
@@ -57,14 +68,15 @@ function makeLink(parentElementLabel, childElementLabel) {
 function makeElement(label, opts) {
 
     var maxLineLength = _.max(label.split('\n'), function(l) { return l.length; }).length;
+    var fillColor;
 
-    //decide what color to use based on varible properties.
+    //decide what color to use based on variable properties.
     if (opts.blocks) 
-        var fillColor = 'red';
-    else if (opts.evidence) 
-        var fillColor = 'green';
+        fillColor = 'red';
+    else if (opts.observation != "none") 
+        fillColor = 'green';
     else 
-        var fillColor = 'white';
+        fillColor = 'white';
     // Compute width/height of the rectangle based on the number 
     // of lines in the label and the letter size. 0.6 * letterSize is
     // an approximation of the monospace font letter width.
@@ -75,7 +87,6 @@ function makeElement(label, opts) {
     var variable =  new joint.shapes.basic.Rect({
         name : label,
         id: label,
-        onclick : function () {alert("hello");},
         size: { width: width, height: height },
         attrs: {
             text: { text: label, 'font-size': letterSize, 'font-family': 'monospace' },
@@ -90,55 +101,122 @@ function makeElement(label, opts) {
     return variable;
 }
 
+
+function drawCondtionalProbabilityTable(variable) {
+    var v = variables[variable];
+    var rows = Math.pow(2, v.parents.length);
+    var table = "<table border=1><td colspan=\"" + String(v.parents.length+1) +  "\">" + generateObservationRadio(v) + " </td></tr><tr>";
+    for (var i = 0; i < v.parents.length; i++) {
+        table += "<td>&nbsp;&nbsp;" + v.parents[i] + "&nbsp;&nbsp;</td>";
+    }
+    table += "<td>&nbsp;&nbsp; P &nbsp;&nbsp;</td></tr>";
+    var form = generateTrueFalseRows(rows,v.parents.length).reverse();
+    for (var i = 0; i < form.length; i++) {
+        table += "<tr>";
+        for (var j = 0; j < form[i].length; j++) {
+           table += "<td>" + form[i][j]+ "</td>" ;
+        }
+        table += "<td><input id=\"" + selected + form[i] + "\" class=\"form-control\"></input></td></tr>";
+    }
+    table += "<tr><td colspan=\"" + String(v.parents.length+1) +  "\"><button id=\"update-cpt\" onclick=\"updateCPT()\">update</button></td></tr></table>";
+    $('#probtable').html(table);
+}
+
+function generateObservationRadio(variable) {
+        if (variable.observation == "true") 
+            return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"true\">true</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"false\">false</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"none\">none</input>";
+        if (variable.observation == "false") 
+            return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"true\">true</input><input type=\"radio\" name=\"observed" + selected + "\" checked onclick=toggleObservation() value=\"false\">false</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"none\">none</input>";
+        return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"true\">true</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"false\">false</input><input type=\"radio\" name=\"observed" + selected + "\"  onclick=toggleObservation() value=\"none\" checked>none</input>";
+}
+
+function generateTrueFalseRows(numRows, varsLeft) {
+    var TFvalue = "T";
+    var ret = [];
+    for (var i = 0; i < numRows; i++) {
+        ret[i] = "";
+    }
+    if (varsLeft === 0)
+        return ret;
+    var rows  = generateTrueFalseRows(numRows, varsLeft - 1 );
+    for (i = rows.length - 1; i >= 0; i--) {
+       ret[i] = TFvalue + rows[i];
+       if (i % Math.pow(2, varsLeft - 1) === 0 )
+        TFvalue = toggleTrueFalseValue(TFvalue);
+    }
+    return ret;
+}
+
+function updateCPT() {
+    var variable = variables[selected];
+    var entries = Math.pow(2, variable.parents.length);
+    var cpt = [];
+    var truefalsestrings = generateTrueFalseRows(entries,variable.parents.length).reverse();
+    for(var i = 0; i < entries; i++) {
+        var pvalue = $('#'+selected+truefalsestrings[i]).val();
+        pvalue = parseFloat(pvalue);
+        if(isNaN(pvalue) || pvalue > 1.0 || pvalue < 0) {
+            console.log("error! A parmater is NaN or not between 0 and 1!"); //TODO: Put in exception handling.
+            return;
+        }
+        cpt.push(pvalue); 
+    }
+    variable.cpt = cpt;
+}
+
+function toggleTrueFalseValue(val) {
+    if (val == "T")
+        return "F";
+    return "T";
+}
+
 function addVar(name, properties) {
     if(arguments.length == 1) {
-        varibles[name.name] = {"blocks":false, "evidence" : false, "parents" : [], "children":[]};
+        variables[name.name] = {"blocks":false, "observation" : false, "parents" : [], "children":[]};
     }
     else if(arguments.length == 2) {
-        varibles[name.name] = properties; 
+        variables[name.name] = properties; 
     }
     else {
-        varibles[$("#varname").val()] = {"evidence" : false, "parents" : [], "children":[]};
+        variables[$("#varname").val()] = {"observation" : false, "parents" : [], "children":[]};
     }
     drawGraph();
 }
 
 function rmVar() {
-    delete varibles[$("#varname").val()];
+    delete variables[$("#varname").val()];
     drawGraph();
 }
 
-function mvVar(oldName, newName) {
-    varibles[newName] = varibles[oldName];
-    delete varibles[oldName];
+function mvVar(oldName, newName) { 
+    variables[newName] = variables[oldName];
+    delete variables[oldName];
     drawGraph();
 }
 
 function addRelationship() {
-    varibles[$("#parentname").val()].children.push($("#childname").val());
-    varibles[$("#childname").val()].parents.push($("#parentname").val());
+    variables[$("#parentname").val()].children.push($("#childname").val());
+    variables[$("#childname").val()].parents.push($("#parentname").val());
     drawGraph();
 }
 
 function rmRelationship() {
-    var childIndex = varibles[$("#parentname").val()].children.indexOf($("#childname").val());
-    varibles[$("#childname").val()].parents.splice(childIndex, 1);
-    var parentIndex = varibles[$("#childname").val()].parents.indexOf($("#parentname").val());
-    varibles[$("#childname").val()].parents.splice(parentIndex, 1);
+    var childIndex = variables[$("#parentname").val()].children.indexOf($("#childname").val());
+    variables[$("#childname").val()].parents.splice(childIndex, 1);
+    var parentIndex = variables[$("#childname").val()].parents.indexOf($("#parentname").val());
+    variables[$("#childname").val()].parents.splice(parentIndex, 1);
     drawGraph();
 }
 
-function toggleEvidence(name) {
-    varibles[name].blocks = false;
-    if (varibles[name].evidence) 
-        varibles[name].evidence = false;
-    else 
-        varibles[name].evidence = true;
+function toggleObservation() { 
+    console.log(selected);
+    variables[selected].blocks = false;
+    variables[selected].observation = $('input[name="observed' +  selected +'"]:checked').val();
     drawGraph();
 }
 
 function queryDSeperation() {
-    for (v in varibles) {
+    for (v in variables) {
         v.blocks = false;
     }
     drawGraph();
@@ -151,57 +229,25 @@ function queryDSeperation() {
     drawGraph();
 }
 
+function selectVariable(variable) {
+    selected = variable;
+    drawCondtionalProbabilityTable(variable);
+} 
+
 function drawGraph() {
-    var cells = buildGraphFromVaribleList(varibles);
+    var cells = buildGraphFromvariableList(variables);
     graph.resetCells(cells);
     joint.layout.DirectedGraph.layout(graph, { setLinkVertices: false });
 }
 
-function handleClickEvent() {
-
-}
-
 
 drawGraph();
-//event handlers
-var currentName = "";
-var isInVaribleNamingMode = false;
-var skip = false;
 
-//Note to self: Try building new cell, and creating the varible after the user is done typing.
-$('body').keypress( function (event) {
-    if(isInVaribleNamingMode) {
-        if(event.which == 12 || event.which == 27) {
-            currentName = "";
-            isInVaribleNamingMode = false;
-        }
-        else {
-            alert(currentName);
-            var charStr = String.fromCharCode(event.which);
-            graph.deleteCell(currentName);
-            currentName = currentName + charStr;
-            graph.addCell(makeElement(currentName));
-            joint.layout.DirectedGraph.layout(graph, { setLinkVertices: false });
-        }
-    }
-});
+
 paper.on('cell:pointerdown', 
     function(cellView, evt, x, y) { 
-            toggleEvidence( cellView.model.id ); 
+            selectVariable( cellView.model.id ); 
             drawGraph();
-        }
-    );
-paper.on('blank:pointerdown', 
-    function(cellView, evt, x, y) { 
-            if(!isInVaribleNamingMode ) {
-                addVar({ name : ""});            
-                isInVaribleNamingMode = true;
-                drawGraph();
-            }
-            else {
-                currentName = "";
-                isInVaribleNamingMode = false;
-            }
         }
     );
 drawGraph();
