@@ -1,6 +1,6 @@
 # Bayes.js
 
-A javascript bayesian network simulation library. A demo can be found [here](http://ahalbert.nfshost.com/bayes-js/index.html).
+A javascript bayesian network simulation library. A demo can be found [here](file:///Users/ahalbert/workspace/bayes.js/demo/index.html).
 
 ## Installing
 
