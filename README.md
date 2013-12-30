@@ -15,18 +15,10 @@ Creating a network:
     "s": {children : ["w"], parents : ["r"], observation : "none", blocks : false, CPT :[[ 0.01 ], [0.4]]},
     "w": {children : [], parents : ["r", "s"], observation : "none", blocks : false, CPT : [[0.99], [ 0.8 ], [ 0.9 ], [ 0.0 ]]}
     });
-Set evidence:
 
-```network.varible["r"].observation = "T";```
+Set evidence: ```network.varible["r"].observation = "T";```
     
-Exact Inference:
-  
-```network.enumerationInference("s");```
-
-Approximate inference:
-
-```network.rejectionSample("s",100);```
-
+Approximate inference: ```network.rejectionSample("s",100);```
 
 ## Building from source
 
