@@ -33,10 +33,13 @@
        <input id="qend" class="form-control"> </input>
        <button id="query" class="btn btn-default" onclick="queryDSeperation()" >query</button>
         ?
-        <div id="querymessage"></div>
+        <br>
+        Probability:&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        <input id="pqueryvar" class="form-control"> </input>
+        <button id="pquery" class="btn btn-default" onclick="queryProbability()" >query</button>
         <div id="probtable"> </div>
        <br>
-       To add a varible to the evidence pool, click on it.
+        <div id="querymessage"></div>
         <div id="paper" class="paper"></div>
     </body>
         <!--jquery-->
@@ -47,6 +50,7 @@
         <script type="text/javascript" src="js/jquery.svg.js"></script>
         <script type="text/javascript" src="./js/jquery.svg.input.js"></script>
         <script type="text/javascript" src="./js/bootstrap.js"></script>
+        <script type="text/javascript" src="./bayesnet.js"></script>
         <script type="text/javascript" src="./dsep.js"></script>
         <script type="text/javascript" src="./visulization.js"></script>
 </html>

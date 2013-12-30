@@ -24,6 +24,32 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+// var network = new BayesNet ({
+//     "a": {children : ["d","c"], parents : [], observation : "none", blocks : false , CPT : [[0.4]] },
+//     "b": {children : ["d"], parents : [], observation : "none", blocks : false, CPT :[[ 0.5 ]]},
+//     "c": {children : ["f", "g"], parents : ["a"], observation : "none", blocks : false, CPT : [[ 0.6 ], [ 0.2 ]]},
+//     "d": {children : ["g", "h"], parents : ["b", "a"], observation : "none", blocks : false, CPT : [[ 0.1 ], [ 0.2 ], [ 0.3 ], [ 0.4 ]]},
+//     "e": {children : ["h"], parents : [], observation : "none", blocks : false, CPT : [[ 0.9 ]]},
+//     "f": {children : [], parents : ["c"], observation : "none", blocks : false, CPT : [[ 0.3 ], [ 0.2 ]]},
+//     "g": {children : [], parents : ["c", "d"], observation : "none", blocks : false, CPT : [[ 0.4 ], [ 0.1 ], [ 0.9 ], [ 0.6 ]]},
+//     "h": {children : [], parents : ["d", "e"], observation : "none", blocks : false, CPT : [[ 0.2 ], [ 0.3 ], [ 0.6 ], [ 0.7 ]]}
+// } );
+
+// var network = new BayesNet ({
+//     "b": {children : ["a"], parents : [], observation : "none", blocks : false , CPT : [[0.001]] },
+//     "e": {children : ["a"], parents : [], observation : "none", blocks : false, CPT :[[ 0.002 ]]},
+//     "a": {children : ["j", "m"], parents : ["b", "e"], observation : "none", blocks : false, CPT : [[ 0.95 ], [ 0.94 ], [ 0.29 ], [ 0.001 ]]},
+//     "j": {children : [], parents : ["a"], observation : "none", blocks : false, CPT : [[ 0.9 ], [ 0.05 ]]},
+//     "m": {children : [], parents : ["a"], observation : "none", blocks : false, CPT : [[ 0.7 ], [ 0.01 ]]},
+// } );
+
+var network = new BayesNet ({
+    "r": {children : ["s", "w"], parents : [], observation : "none", blocks : false , CPT : [[0.2]] },
+    "s": {children : ["w"], parents : ["r"], observation : "none", blocks : false, CPT :[[ 0.01 ], [0.4]]},
+    "w": {children : [], parents : ["r", "s"], observation : "none", blocks : false, CPT : [[0.99], [ 0.8 ], [ 0.9 ], [ 0.0 ]]}
+});
+
 var graph = new joint.dia.Graph;
 
 var paper = new joint.dia.Paper({
@@ -37,11 +63,11 @@ var paper = new joint.dia.Paper({
 
 var selected;
 
-function buildGraphFromvariableList(variables) {
+function buildGraphFromvariableList() {
     var elements = [];
     var links = [];
     
-    _.each(variables, function(opts, parentElementLabel) {
+    _.each(network.variables, function(opts, parentElementLabel) {
         elements.push(makeElement(parentElementLabel, opts));
 
         _.each(opts.children, function(childElementLabel) {
@@ -103,7 +129,7 @@ function makeElement(label, opts) {
 
 
 function drawCondtionalProbabilityTable(variable) {
-    var v = variables[variable];
+    var v = network.variables[variable];
     var rows = Math.pow(2, v.parents.length);
     var table = "<table border=1><td colspan=\"" + String(v.parents.length+1) +  "\">" + generateObservationRadio(v) + " </td></tr><tr>";
     for (var i = 0; i < v.parents.length; i++) {
@@ -116,18 +142,22 @@ function drawCondtionalProbabilityTable(variable) {
         for (var j = 0; j < form[i].length; j++) {
            table += "<td>" + form[i][j]+ "</td>" ;
         }
-        table += "<td><input id=\"" + selected + form[i] + "\" class=\"form-control\"></input></td></tr>";
+        if (v.CPT == [])
+            inputText = "";
+        else
+            inputText = v.CPT[i][0].toString();
+        table += "<td><input id=\"" + selected + form[i] + "\" class=\"form-control\" value=\""+ inputText  +"\"></td></tr>";
     }
     table += "<tr><td colspan=\"" + String(v.parents.length+1) +  "\"><button id=\"update-cpt\" onclick=\"updateCPT()\">update</button></td></tr></table>";
     $('#probtable').html(table);
 }
 
 function generateObservationRadio(variable) {
-        if (variable.observation == "true") 
-            return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"true\">true</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"false\">false</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"none\">none</input>";
-        if (variable.observation == "false") 
-            return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"true\">true</input><input type=\"radio\" name=\"observed" + selected + "\" checked onclick=toggleObservation() value=\"false\">false</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"none\">none</input>";
-        return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"true\">true</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"false\">false</input><input type=\"radio\" name=\"observed" + selected + "\"  onclick=toggleObservation() value=\"none\" checked>none</input>";
+        if (variable.observation == "T") 
+            return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"T\">true</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"F\">false</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"none\">none</input>";
+        if (variable.observation == "F") 
+            return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"T\">true</input><input type=\"radio\" name=\"observed" + selected + "\" checked onclick=toggleObservation() value=\"F\">false</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"none\">none</input>";
+        return "<input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"T\">true</input><input type=\"radio\" name=\"observed" + selected + "\" onclick=toggleObservation() value=\"F\">false</input><input type=\"radio\" name=\"observed" + selected + "\"  onclick=toggleObservation() value=\"none\" checked>none</input>";
 }
 
 function generateTrueFalseRows(numRows, varsLeft) {
@@ -148,7 +178,7 @@ function generateTrueFalseRows(numRows, varsLeft) {
 }
 
 function updateCPT() {
-    var variable = variables[selected];
+    var variable = network.variables[selected];
     var entries = Math.pow(2, variable.parents.length);
     var cpt = [];
     var truefalsestrings = generateTrueFalseRows(entries,variable.parents.length).reverse();
@@ -170,63 +200,49 @@ function toggleTrueFalseValue(val) {
     return "T";
 }
 
-function addVar(name, properties) {
-    if(arguments.length == 1) {
-        variables[name.name] = {"blocks":false, "observation" : false, "parents" : [], "children":[]};
-    }
-    else if(arguments.length == 2) {
-        variables[name.name] = properties; 
-    }
-    else {
-        variables[$("#varname").val()] = {"observation" : false, "parents" : [], "children":[]};
-    }
-    drawGraph();
+function addVar(name) {
+        network.addVar($("#varname").val());
+        drawGraph();
 }
 
 function rmVar() {
-    delete variables[$("#varname").val()];
-    drawGraph();
-}
-
-function mvVar(oldName, newName) { 
-    variables[newName] = variables[oldName];
-    delete variables[oldName];
+    network.rmVar($("#varname").val() );
     drawGraph();
 }
 
 function addRelationship() {
-    variables[$("#parentname").val()].children.push($("#childname").val());
-    variables[$("#childname").val()].parents.push($("#parentname").val());
+    network.addRelationship($("#parentname").val(), $("#childname").val());
     drawGraph();
 }
 
 function rmRelationship() {
-    var childIndex = variables[$("#parentname").val()].children.indexOf($("#childname").val());
-    variables[$("#childname").val()].parents.splice(childIndex, 1);
-    var parentIndex = variables[$("#childname").val()].parents.indexOf($("#parentname").val());
-    variables[$("#childname").val()].parents.splice(parentIndex, 1);
+    network.rmRelationship($("#parentname").val(), $("#childname").val());
     drawGraph();
 }
 
 function toggleObservation() { 
-    console.log(selected);
-    variables[selected].blocks = false;
-    variables[selected].observation = $('input[name="observed' +  selected +'"]:checked').val();
+    network.variables[selected].blocks = false;
+    network.variables[selected].observation = $('input[name="observed' +  selected +'"]:checked').val();
     drawGraph();
 }
 
 function queryDSeperation() {
-    for (v in variables) {
-        v.blocks = false;
+    for (v in network.variables) {
+        network.variables[v].blocks = false;
     }
     drawGraph();
     var start = $("#qstart").val();
     var end = $("#qend").val();
-    if (isdseperated(start, end))
+    if (network.isdseperated(start, end))
         $("#querymessage").html(start + " and " + end + " are d-seperated.");
     else
         $("#querymessage").html(start + " and " + end + " are d-connected.");
     drawGraph();
+}
+
+function queryProbability() {
+   var target = $("#pqueryvar").val();
+   console.log(network.enumerationInference(target));
 }
 
 function selectVariable(variable) {
@@ -235,14 +251,12 @@ function selectVariable(variable) {
 } 
 
 function drawGraph() {
-    var cells = buildGraphFromvariableList(variables);
+    var cells = buildGraphFromvariableList();
     graph.resetCells(cells);
     joint.layout.DirectedGraph.layout(graph, { setLinkVertices: false });
 }
 
-
 drawGraph();
-
 
 paper.on('cell:pointerdown', 
     function(cellView, evt, x, y) { 
