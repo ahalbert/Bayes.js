@@ -1,0 +1,65 @@
+
+Bayes.js
+
+bayesNode: An object representing a variable in a bayesian network:
+
+Properties(user settable): 
+    children: The children of the node/
+
+    CPT: Conditional probobility table
+
+    domain: Values. Currently only supports boolean variables.
+
+    observation: Value of the varible. Use "none" if it is a hidden variable.
+
+    Parents: The parent's of the node.
+
+Methods:
+
+    P(evidence, value)
+        get probobility of value based on evidence. Evidence must be complete over the CPT.
+
+    Sample(evidence)
+        Sample a variable from CPT. Evidence must be complete over the CPT.
+
+BayesNet: An object containg a collection of bayesNodes, representing a full bayesian network and their
+conditional probobility distributions. 
+
+Properties: 
+
+    variables: a collection of varibles in the network.
+    numVars: number of variables in the network.
+
+
+Methods:
+
+    addVar(name,obj)
+        adds variable name to the network with properties from obj.
+
+    rmVar(name)
+        removes variable name from network.
+
+    addRelationship(p, child)
+        adds relationship of the form "p is parent of child"
+    
+    rmRelationship(p, child)
+        removes relationship of the form "p is parent of child"
+
+
+Exact Inferencing methods:
+
+    enumerationASK(query)
+        Exact inference using enumeration. returns the distribution of the variable query.
+
+Approximate Inferencing methods:
+
+    rejectionASK(query, N)
+    Returns approximate inference of query. N specifies the number of times to run the inferencing algorthim.
+
+    liklihoodASK(query, N)
+    Returns approximate inference of query. N specifies the number of times to run the inferencing algorthim.
+MCMC Inferencing methods:
+
+    gibbsASK(query, N) 
+    Returns approximate inference of query. N specifies the number of times to run the inferencing algorthim.
+
