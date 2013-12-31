@@ -35,8 +35,10 @@ function BayesNet(vars) {
     this.variables = {};
     this.numVars = Object.keys(this.variables).length;
     for (v in vars) {
-           this.variables[v] = new BayesNode(vars[v]);
+        this.variables[v] = new BayesNode(vars[v]);
+        this.variables[v].CPTorder = this.generateDomainRows(this.variables[v].parents);
     }
+    this.variables[v].blocks = false;
 }
 
 BayesNet.prototype.addVar = function (name, parents, children, obs, cpt) {
@@ -97,6 +99,27 @@ BayesNet.prototype.getUnobservedVariables = function () {
     return unobservedVars;
 };
 
+BayesNet.prototype.getCPTDomainRows = function (target, vars) {
+    return rows;
+};
+
+BayesNet.prototype.generateDomainRows = function (vars) {
+    if (vars.length == 0)
+        return [""];
+    var v = vars.pop();
+    v = this.variables[v];
+    var rows = [];
+    var ret = this.generateDomainRows(vars);
+    var domainValue = v.domain[0];
+    for (var i = 0; i < v.domain.length; i++) {
+        rows.push([]);
+        for (var j = 0; j < ret.length; j++) 
+            rows[i].push(domainValue + ret[j]);
+        domainValue = v.toggleDomainValue(domainValue);
+    }
+    return _.flatten(rows);
+};
+
 //general utility functions
 function sumArray(a) {
     return a.reduce(function(prev,value) {return prev + value;});
@@ -129,7 +152,6 @@ function BayesNode(variable) {
             this.domain = variable.domain;
         this.observation = variable.observation;
         this.CPT = variable.CPT;
-        this.cptOrder = this.generateDomainValueRows(Math.pow(2, variable.parents.length), variable.parents.length).reverse();
         this.sampleDistribution = [];
         for (var i = 0; i < this.CPT.length; i++) {
             var s = [];
@@ -183,23 +205,6 @@ BayesNode.prototype.toggleDomainValue = function (value) {
     if (index == this.domain.length)
         index = 0;
     return this.domain[index];
-};
-
-BayesNode.prototype.generateDomainValueRows = function (numRows, varsLeft) {
-    var domainValue = this.domain[0];
-    var ret = [];
-    for (var i = 0; i < numRows; i++) {
-        ret[i] = "";
-    }
-    if (varsLeft === 0)
-        return ret;
-    var rows  = this.generateDomainValueRows(numRows, varsLeft - 1 );
-    for (i = rows.length - 1; i >= 0; i--) {
-       ret[i] = domainValue + rows[i];
-       if (i % Math.pow(2, varsLeft - 1) === 0 )
-        domainValue = this.toggleDomainValue(domainValue);
-    }
-    return ret;
 };
 BayesNet.prototype.isdseperated = function (start, target)   {
     isSeperated = true;
