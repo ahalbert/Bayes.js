@@ -2,6 +2,19 @@
 
 A javascript bayesian network simulation library. A demo can be found [here](http://ahalbert.nfshost.com/projects/demo/index.html).
 
+
+## Demo
+
+The demo requires `npm` as a package manager and has `jquery`, `bootstrap` and `jointjs` as a dependency.
+You can install them easily by doing using `npm install`:
+
+```bash
+cd ./Bayes.js/demo;
+
+npm install;
+```
+
+
 ## Installing
 
 Just insert ```bayes.js``` or ```bayes.min.js``` into your project, and you are good to go. 

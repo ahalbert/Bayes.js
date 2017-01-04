@@ -1,3 +1,22 @@
+#per {
+	border: 1px solid lightgray;
+	display: inline-block;
+	overflow: hidden;
+}
+section#form,
+section#demo {
+	display: inline-block;
+	max-width: 50%;
+}
+fieldset {
+	margin: 2em;
+}
+fieldset > input.form-control {
+	display: inline-block;
+	max-width: 10em;
+	vertical-align: top;
+}
+
 svg {
   background-color: #ccc; 
   border: solid 1px #ddd;

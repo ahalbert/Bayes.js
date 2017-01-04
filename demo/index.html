@@ -1,56 +1,57 @@
+<!DOCTYPE html>
 <html>
-    <head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link href="css/bootstrap.min.css" rel="stylesheet" />
-		<link href="css/bootstrap-responsive.css" rel="stylesheet" />
-		<link href="css/joint.min.css" rel="stylesheet" />
-        <link rel="stylesheet" type="text/css" href="css/jquery.svg.css"> 
-        <link rel="stylesheet" type="text/css" href="css/svg.css"> 
-        <style type="text/css">
-            #per {
-            border: 1px solid lightgray;
-            display: inline-block;
-            overflow: hidden;
-            }
-        </style>
-    </head>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="./node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="./node_modules/jointjs/dist/joint.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="./css/demo.css"> 
+	</head>
 
-    <body>
-       <h2>Bayes Network Simulator</h2>
-       Variables:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="varname"  class="form-control"> </input>
-       <button id="btn-add-var" class="btn btn-default" onclick="addVar()">add</button>
-       <button id="btn-remove-var" class="btn btn-default" onclick="rmVar()">remove</button>
-       <br>
-       Relationships:&nbsp;<input id="childname" class="form-control"> </input>
-       is a child of 
-       <input id="parentname" class="form-control"> </input>
-       <button id="btn-add-cond" class="btn btn-default" onclick="addRelationship()">add</button>
-       <button id="btn-remove-cond" class="btn btn-default"  onclick="rmRelationship()">remove</button>
-       <br>
-       Independence:<input id="qstart" class="form-control"> </input>
-       is d-seperated from 
-       <input id="qend" class="form-control"> </input>
-       <button id="query" class="btn btn-default" onclick="queryDSeperation()" >query</button>
-        ?
-        <br>
-        Probability:&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-        <input id="pqueryvar" class="form-control"> </input>
-        <button id="pquery" class="btn btn-default" onclick="queryProbability()" >query</button>
-        <div id="probtable"> </div>
-       <br>
-        <div id="querymessage"></div>
-        <div id="paper" class="paper"></div>
-    </body>
-        <!--jquery-->
-        <script type="text/javascript" src="./bayes.min.js"></script>
-        <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
-        <script type="text/javascript" src="js/bootstrap.js "></script>
-        <script type="text/javascript" src="./js/joint.min.js"></script>
-        <script type="text/javascript" src="./js/joint.layout.DirectedGraph.min.js"></script>
-        <script type="text/javascript" src="js/jquery.svg.js"></script>
-        <script type="text/javascript" src="./js/jquery.svg.input.js"></script>
-        <script type="text/javascript" src="./js/bootstrap.js"></script>
-        <script type="text/javascript" src="./visulization.js"></script>
+	<body>
+		<h2>Bayes Network Simulator</h2>
+
+		<section id="form">
+			<fieldset>
+				<legend>Variables</legend>
+				<input id="varname" class="form-control">
+				<button id="btn-add-var" class="btn btn-default" onclick="addVar()">add</button>
+				<button id="btn-remove-var" class="btn btn-default" onclick="rmVar()">remove</button>
+			</fieldset>
+			<fieldset>
+				<legend>Relationships</legend>
+				<input id="childname" class="form-control"> is a child of <input id="parentname" class="form-control">
+				<button id="btn-add-cond" class="btn btn-default" onclick="addRelationship()">add</button>
+				<button id="btn-remove-cond" class="btn btn-default" onclick="rmRelationship()">remove</button>
+			</fieldset>
+			<fieldset>
+				<legend>Independence</legend>
+				<input id="qstart" class="form-control"> is d-seperated from <input id="qend" class="form-control">
+				<button id="query" class="btn btn-default" onclick="queryDSeperation()">query</button>
+			</fieldset>
+			<fieldset>
+				<legend>Probability</legend>
+				<input id="pqueryvar" class="form-control">
+				<button id="pquery" class="btn btn-default" onclick="queryProbability()">query</button>
+			</fieldset>
+		</section>
+
+		<section id="demo">
+			<div id="probtable"></div>
+			<div id="querymessage"></div>
+			<div id="paper" class="paper"></div>
+		</section>
+
+		<script type="text/javascript" src="../bayes.js"></script>
+		<script type="text/javascript" src="./node_modules/jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="./node_modules/lodash/index.js"></script>
+		<script type="text/javascript" src="./node_modules/backbone/backbone.js"></script>
+		<script type="text/javascript" src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
+		<script type="text/javascript" src="./node_modules/dagre/dist/dagre.js"></script>
+		<script type="text/javascript" src="./node_modules/graphlib/dist/graphlib.js"></script>
+		<script type="text/javascript" src="./node_modules/jointjs/dist/joint.min.js"></script>
+		<script type="text/javascript" src="./node_modules/jointjs/dist/joint.layout.DirectedGraph.min.js"></script>
+		<script type="text/javascript" src="./visulization.js"></script>
+	</body>
 </html>
 
